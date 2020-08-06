@@ -1,22 +1,24 @@
-from time import sleep
-import datetime
-import subprocess
-import ctypes, os
-import time
-import keyboard
-import threading
 # Ensure you add arguments as well! args
 import argparse
-# For future GUI implementation
-import tkinter
+from bs4 import BeautifulSoup
+import datetime
+import ctypes
+import json
+import keyboard
+import os
 # Add argument to play youtube playlist!
 import pafy
-import os
-#os.chdir('C:\Program Files\VideoLAN\VLC')
-import vlc
-from bs4 import BeautifulSoup
-import requests
 import random
+import requests
+import subprocess
+from time import sleep
+import time
+import threading
+# For future GUI implementation
+import tkinter
+import vlc
+
+
 
 
 # Function that scraps website to get Youtube playlist links
@@ -24,8 +26,7 @@ import random
 def getPlaylistLinks(url):
     dict_append = {}
     count = 0
-    import subprocess
-    import json
+    
     #command =  'youtube-dl --dump-json https://www.youtube.com/playlist?list=PLy8QXiv7X7KGWy6raCmBTlRC8Vz7V2I2p > "'+os.getcwd()+'\\json.json"'
     command = 'youtube-dl -j --flat-playlist https://www.youtube.com/playlist?list=PLy8QXiv7X7KFygflzVEYfLB0_p1IhX9S7 > "'+os.getcwd()+'\\json.json"'
     completed_process = subprocess.run(command,shell=True)
