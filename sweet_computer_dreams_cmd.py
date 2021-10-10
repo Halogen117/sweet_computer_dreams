@@ -93,9 +93,9 @@ def main():
     parser.add_argument('-a', '--ascending', action='store_true',dest='ascending', 
                     help='Set this option to play the playlist through Ascending order. Eg : 3 -> 2-> 1')   
 
-    parser.add_argument('--st', action='store', dest='set_time', help='Input the exact time you want the program to shutdown!', default= None, type=str)
+    parser.add_argument('--st', action='store', dest='set_time', help='Input the exact time you want the program to shutdown!', default= None , type=str)
     # Exact Date
-    parser.add_argument('--sd', action='store', dest='set_date', help='Input the exact date you want the program to shutdown!', default=None, type=str)
+    parser.add_argument('--sd', action='store', dest='set_date', help='Input the exact date you want the program to shutdown!', default= None, type=str)
 
     args = parser.parse_args()
     
@@ -105,12 +105,15 @@ def main():
     args_days = args.day_timer
     args_playlist_url = args.playlist_url
     args_player_off = args.player_off
+
+    if  parser.get_default('playlist_url') != args_playlist_url:
+        args_player_off = True
     if 'https://www.youtube.com' not in args_playlist_url:
         print("Invalid Youtube Link! The VLC Player will automatically be disabled")
         args_player_off = False
 
     if miscellenous_main.connect_to_internet() is False:
-        print("No internet connection... The vlc player will automatically be disabled")
+        print("No internet connection... The VLC player will automatically be disabled")
         args_player_off = False
     
     args_descending = args.descending
@@ -119,10 +122,6 @@ def main():
     args_set_time = args.set_time
     args_set_date = args.set_date
 
-    if args_set_date and args_set_time is not None:
-        exact_date_time_class = exact_date_time(args_set_date, args_set_time)
-    
-        exact_date_time_class.analyze_time_format()
     #exact_date_time_class.different_time_format()
     
     if args_ascending and args_descending is True:
@@ -137,17 +136,21 @@ def main():
         print("It is recommended if you run the program in an administrator mode!")
         exit()
 
-
     start_time = datetime.datetime.now()
-    if args_hours is None and args_minutes is None and args_seconds is None and args_days is None:
+
+    time_to_pause = miscellenous_main().return_time_to_pause(args_days, args_hours, args_seconds, args_set_date, args_set_time)
+    if time_to_pause is False:
+        exact_date_time_class = exact_date_time(args_set_date, args_set_time)
+        time_to_pause  = exact_date_time_class.analyze_time_format()
+    """
+    if (args_hours and args_seconds and args_days and args_set_time and args_set_date) is None:
         time_to_pause = miscellenous_main.check_time_no_args()
         while time_to_pause is False:
             print("Not an integer! Please enter the time again!") 
             time_to_pause = check_time_no_args.check_time_no_args()
-            
     else:
         time_to_pause = miscellenous_main.calculate_to_seconds(args_days,args_hours,args_minutes,args_seconds)
-
+    """
     end_time = start_time + datetime.timedelta(seconds=time_to_pause)
 
     if args_player_off is True:

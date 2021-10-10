@@ -1,4 +1,5 @@
 import ctypes
+import datetime
 import os
 import subprocess
 import json
@@ -54,7 +55,7 @@ class miscellenous_main:
         return (args_days*3600*24) + (args_hours * 60 + args_minutes) * 60 + args_seconds
 
     # Function to enhance argument function
-    def check_time_no_args():
+    def check_time_no_args(self):
         time_output = input("How long do you want to run the program before allowing the compute to sleep? (seconds)")
         try:
             return int(time_output)
@@ -79,7 +80,21 @@ class miscellenous_main:
 
         return is_admin
 
+
+    def return_time_to_pause(self,args_days, args_hours, args_seconds, args_set_date, args_set_time):
+        if args_set_date or args_set_time is not None:
+            return False
+        
+        if (args_hours and args_seconds and args_days and args_set_time and args_set_date) is None:
+            time_to_pause = self.check_time_no_args()
+            while time_to_pause is False:
+                print("Not an integer! Please enter the time again!") 
+                time_to_pause = self.check_time_no_args()
+        else:
+            time_to_pause = calculate_to_seconds(args_days,args_hours,args_minutes,args_seconds)
+
+        return time_to_pause
     # Calculate the number to return? (Work on it)
-    def calculate_playlist_number():
+    def calculate_playlist_number(self):
         number = 0
         return 
