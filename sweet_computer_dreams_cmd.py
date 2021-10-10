@@ -11,7 +11,6 @@ import pafy
 import random
 import requests
 
-
 from time import sleep
 import time
 import threading
@@ -29,39 +28,63 @@ from miscellenous_main.miscellenous_main import miscellenous_main
 # Consider working on a GUI version?
 # Debug Debug Debug
 
+# The key combination to check
+COMBINATION_NEXT_VID = {keyboard.Key.ctrl_l, keyboard.Key.right}
+COMBINATION_PREV_VID = {keyboard.Key.ctrl_l, keyboard.Key.left}
+COMBINATION_PAUSE_VID = {keyboard.Key.ctrl_l, keyboard.Key.enter}
+# The currently active modifiers
+current = set()
+
 def on_press(key):
     global next_video
     global previous_video
     global repeat_pause
+    global end_player
     print (key)
-    if key == keyboard.Key.right:
-        print ('Right Key Pressed!')
-        next_video = True
-    elif key == keyboard.Key.left:
-        print("Left Key Pressed")
-        previous_video = True
-        return False
-    elif key == keyboard.Key.enter:
-        if repeat_pause == 0:
-            print("Initialized!")
-            repeat_pause = 1
-        elif repeat_pause == 1:
-            repeat_pause = 2
-        else:
-            repeat_pause = 1
-        print('Paused pressed!')
+    if key in COMBINATION_NEXT_VID:
+        current.add(key)
+        if all(k in current for k in COMBINATION_NEXT_VID):
+            print("Playing Next Video!")
+            next_video = True
+    elif key in COMBINATION_PREV_VID:
+        current.add(key)
+        if all(k in current for k in COMBINATION_PREV_VID):
+            print("Playing Previous Video!")
+            previous_video = True
+            return False
+    elif key in COMBINATION_PAUSE_VID:
+        current.add(key)
+        if all(k in current for k in COMBINATION_PAUSE_VID):
+            if repeat_pause == 0:
+                print("Initialized!")
+                repeat_pause = 1
+            elif repeat_pause == 1:
+                repeat_pause = 2
+            else:
+                repeat_pause = 1
+            print('Paused pressed!')
 
+    # Exit VLC player
+    elif key == keyboard.Key.esc:
+        print("Sequence aborted!")
+        end_player = True
 
+def on_release(key):
+    try:
+        current.remove(key)
+    except KeyError:
+        pass
 
 def main():
     global next_video
     global previous_video
     global repeat_pause
-    
+    global end_player
     previous_video = False
     stop_pausing = True
     repeat_pause = 0
     next_video = False
+    end_player = None
     video_list_number = []
 
     parser = argparse.ArgumentParser(description='Welcome to the sweet_computer_dreams program! Have fun getting your computer to sleep in style!')
@@ -138,7 +161,7 @@ def main():
 
     start_time = datetime.datetime.now()
 
-    time_to_pause = miscellenous_main().return_time_to_pause(args_days, args_hours, args_seconds, args_set_date, args_set_time)
+    time_to_pause = miscellenous_main().return_time_to_pause(args_days, args_hours, args_minutes, args_seconds, args_set_date, args_set_time)
     if time_to_pause is False:
         exact_date_time_class = exact_date_time(args_set_date, args_set_time)
         time_to_pause  = exact_date_time_class.analyze_time_format()
@@ -177,8 +200,11 @@ def main():
 
         if args_player_off is True:
             while time_to_pause > 0:
-                with keyboard.Listener(on_press=on_press) as listener:
+                with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
                     # State.Ended
+                    if end_player is True:
+                        exit()
+                    
                     if set_print == True:
                         print("Now playing "+playlist_dict[select_random_url_int])
                         print("Composed By :"+video.author)

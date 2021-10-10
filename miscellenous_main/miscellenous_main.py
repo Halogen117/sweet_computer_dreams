@@ -47,7 +47,7 @@ class miscellenous_main:
             return dict_append
 
     # Function that convert all time to seconds
-    def calculate_to_seconds(args_days,args_hours,args_minutes,args_seconds):
+    def calculate_to_seconds(self,args_days,args_hours,args_minutes,args_seconds):
         args_days = args_days or 0
         args_hours = args_hours or 0
         args_minutes = args_minutes or 0
@@ -81,17 +81,17 @@ class miscellenous_main:
         return is_admin
 
 
-    def return_time_to_pause(self,args_days, args_hours, args_seconds, args_set_date, args_set_time):
+    def return_time_to_pause(self,args_days, args_hours, args_minutes, args_seconds, args_set_date, args_set_time):
         if args_set_date or args_set_time is not None:
             return False
         
-        if (args_hours and args_seconds and args_days and args_set_time and args_set_date) is None:
+        if args_hours is None and args_minutes is None and args_seconds is None and args_days is None and args_set_time is None and args_set_date is None:
             time_to_pause = self.check_time_no_args()
             while time_to_pause is False:
                 print("Not an integer! Please enter the time again!") 
                 time_to_pause = self.check_time_no_args()
         else:
-            time_to_pause = calculate_to_seconds(args_days,args_hours,args_minutes,args_seconds)
+            time_to_pause = self.calculate_to_seconds(args_days,args_hours,args_minutes,args_seconds)
 
         return time_to_pause
     # Calculate the number to return? (Work on it)
